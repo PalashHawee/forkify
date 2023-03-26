@@ -1,0 +1,28 @@
+{
+  "name": "forkify",
+  "version": "1.0.0",
+  "description": "Recipe Application",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PalashHawee/forkify.git"
+  },
+  "author": "Palash Hawee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PalashHawee/forkify/issues"
+  },
+  "homepage": "https://github.com/PalashHawee/forkify#readme",
+  "dependencies": {
+    "core-js": "^3.29.1",
+    "parcel": "^2.8.3",
+    "regenerator-runtime": "^0.13.11"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.8.3",
+    "process": "^0.11.10"
+  }
+}
