@@ -569,10 +569,14 @@ var _runtime = require("regenerator-runtime/runtime");
 var _regeneratorRuntime = require("regenerator-runtime");
 var _resultsView = require("./views/resultsView");
 var _resultsViewDefault = parcelHelpers.interopDefault(_resultsView);
+var _paginationView = require("./views/paginationView");
+var _paginationViewDefault = parcelHelpers.interopDefault(_paginationView);
 // https://forkify-api.herokuapp.com/v2
 ///////////////////////////////////////
 //Loading Spinner
-if (module.hot) module.hot.accept();
+// if (module.hot) {
+//   module.hot.accept();
+// }
 //Getting Data from API
 const getRecipe = async function() {
     //1) Loading the Recipe
@@ -606,18 +610,58 @@ const controlSearchResults = async function() {
         await _model.loadSearchResults(query);
         //3)Render Results
         // console.log(model.state.search.results);
-        (0, _resultsViewDefault.default).render(_model.state.search.results);
+        // resultsView.render(model.state.search.results);
+        (0, _resultsViewDefault.default).render(_model.getSearchResultsPage());
+        //4) Render initial pagination buttons
+        (0, _paginationViewDefault.default).render(_model.state.search);
     } catch (err) {
         console.log(err);
     }
 };
+const controlPagination = function(goToPage) {
+    //1)Render New results
+    (0, _resultsViewDefault.default).render(_model.getSearchResultsPage(goToPage));
+    //2) Render new pagination buttons
+    (0, _paginationViewDefault.default).render(_model.state.search);
+};
 const init = ()=>{
     (0, _recipeViewDefault.default).addHandlerRender(getRecipe);
     (0, _searchViewDefault.default).addHandlerSearch(controlSearchResults);
+    (0, _paginationViewDefault.default).addHandlerClick(controlPagination);
 };
 init();
 
-},{"core-js/modules/es.regexp.flags.js":"gSXXb","core-js/modules/web.immediate.js":"49tUX","./model":"Y4A21","./views/recipeView":"l60JC","./views/searchView":"9OQAM","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","./views/resultsView":"cSbZE","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gSXXb":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/es.regexp.flags.js":"gSXXb","core-js/modules/web.immediate.js":"49tUX","./model":"Y4A21","./views/recipeView":"l60JC","./views/searchView":"9OQAM","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","./views/resultsView":"cSbZE","./views/paginationView":"6z7bi"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"gSXXb":[function(require,module,exports) {
 var global = require("36fa31c572ff6470");
 var DESCRIPTORS = require("c7cfe593fb0ce7c3");
 var defineBuiltInAccessor = require("bc39da58258bfb29");
@@ -2012,6 +2056,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe);
 parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults);
+parcelHelpers.export(exports, "getSearchResultsPage", ()=>getSearchResultsPage);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _config = require("./config");
 var _helpers = require("./helpers");
@@ -2019,7 +2064,9 @@ const state = {
     recipe: {},
     search: {
         query: "",
-        results: []
+        results: [],
+        page: 1,
+        resultsPerPage: (0, _config.RES_PER_PAGE)
     }
 };
 const loadRecipe = async function(id) {
@@ -2059,6 +2106,12 @@ const loadSearchResults = async function(query) {
         console.error(`${err}🤔`);
         throw err;
     }
+};
+const getSearchResultsPage = (page = state.search.page)=>{
+    state.search.page = page;
+    const start = (page - 1) * state.search.resultsPerPage;
+    const end = page * state.search.resultsPerPage;
+    return state.search.results.slice(start, end);
 };
 
 },{"regenerator-runtime":"dXNgZ","./config":"k5Hzs","./helpers":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dXNgZ":[function(require,module,exports) {
@@ -2653,40 +2706,12 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "API_URL", ()=>API_URL);
 parcelHelpers.export(exports, "TIMEOUT_SEC", ()=>TIMEOUT_SEC);
+parcelHelpers.export(exports, "RES_PER_PAGE", ()=>RES_PER_PAGE);
 const API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes/";
 const TIMEOUT_SEC = 10;
+const RES_PER_PAGE = 10;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"hGI1E":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON);
@@ -2826,7 +2851,7 @@ class RecipeView extends (0, _viewDefault.default) {
 }
 exports.default = new RecipeView();
 
-},{"url:../../img/icons.svg":"loVOp","fractional":"3SU56","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./View":"5cUXS"}],"loVOp":[function(require,module,exports) {
+},{"url:../../img/icons.svg":"loVOp","fractional":"3SU56","./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"loVOp":[function(require,module,exports) {
 module.exports = require("6e45b3355e8c13fc").getBundleURL("hWUTQ") + "icons.dfd7a6db.svg" + "?" + Date.now();
 
 },{"6e45b3355e8c13fc":"lgJ39"}],"lgJ39":[function(require,module,exports) {
@@ -3307,6 +3332,65 @@ class ResultsView extends (0, _viewDefault.default) {
 }
 exports.default = new ResultsView();
 
-},{"./View":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["d8XZh","aenu9"], "aenu9", "parcelRequire3a11")
+},{"./View":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6z7bi":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("./View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+var _iconsSvg = require("url:../../img/icons.svg"); // Parcel 2
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+class PaginationView extends (0, _viewJsDefault.default) {
+    _parentElement = document.querySelector(".pagination");
+    addHandlerClick(handler) {
+        this._parentElement.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--inline");
+            if (!btn) return;
+            const goToPage = +btn.dataset.goto;
+            handler(goToPage);
+        });
+    }
+    _generateMarkup() {
+        const curPage = this._data.page;
+        const numPages = Math.ceil(this._data.results.length / this._data.resultsPerPage);
+        // Page 1, and there are other pages
+        if (curPage === 1 && numPages > 1) return `
+        <button data-goto="${curPage + 1}" class="btn--inline pagination__btn--next">
+          <span>Page ${curPage + 1}</span>
+          <svg class="search__icon">
+            <use href="${0, _iconsSvgDefault.default}#icon-arrow-right"></use>
+          </svg>
+        </button>
+      `;
+        // Last page
+        if (curPage === numPages && numPages > 1) return `
+        <button data-goto="${curPage - 1}" class="btn--inline pagination__btn--prev">
+          <svg class="search__icon">
+            <use href="${0, _iconsSvgDefault.default}#icon-arrow-left"></use>
+          </svg>
+          <span>Page ${curPage - 1}</span>
+        </button>
+      `;
+        // Other page
+        if (curPage < numPages) return `
+        <button data-goto="${curPage - 1}" class="btn--inline pagination__btn--prev">
+          <svg class="search__icon">
+            <use href="${0, _iconsSvgDefault.default}#icon-arrow-left"></use>
+          </svg>
+          <span>Page ${curPage - 1}</span>
+        </button>
+        <button data-goto="${curPage + 1}" class="btn--inline pagination__btn--next">
+          <span>Page ${curPage + 1}</span>
+          <svg class="search__icon">
+            <use href="${0, _iconsSvgDefault.default}#icon-arrow-right"></use>
+          </svg>
+        </button>
+      `;
+        // Page 1, and there are NO other pages
+        return "";
+    }
+}
+exports.default = new PaginationView();
+
+},{"url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./View.js":"5cUXS"}]},["d8XZh","aenu9"], "aenu9", "parcelRequire3a11")
 
 //# sourceMappingURL=index.e37f48ea.js.map
