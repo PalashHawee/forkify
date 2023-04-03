@@ -9,13 +9,6 @@ import resultsView from './views/resultsView';
 import paginationView from './views/paginationView';
 // https://forkify-api.herokuapp.com/v2
 
-///////////////////////////////////////
-
-//Loading Spinner
-// if (module.hot) {
-//   module.hot.accept();
-// }
-
 //Getting Data from API
 const getRecipe = async function () {
   //1) Loading the Recipe
@@ -25,6 +18,9 @@ const getRecipe = async function () {
     const id = window.location.hash.slice(1);
     if (!id) return;
     recipeView.renderSpinner();
+
+    //Update result view to selected search result
+    resultsView.update(model.getSearchResultsPage());
 
     //Loading Recipe
     await model.loadRecipe(id);
@@ -36,14 +32,6 @@ const getRecipe = async function () {
     recipeView.renderError();
   }
 };
-// getRecipe();
-
-//Render Changing hash onclicking the recipe
-// window.addEventListener('hashchange', getRecipe);
-// window.addEventListener('load', getRecipe);
-
-//Modified version of 2 events for hashchange and load below:
-// ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, getRecipe));
 
 const controlSearchResults = async function () {
   try {
@@ -75,8 +63,24 @@ const controlPagination = function (goToPage) {
   paginationView.render(model.state.search);
 };
 
+const controlServings = function (newServings) {
+  //Update the recipe servings in state
+  model.updateServings(newServings);
+
+  //Update the recipe view
+  recipeView.update(model.state.recipe);
+};
+
+const controlAddBookmark = function () {
+  model.addBookmark(model.state.recipe);
+  console.log(model.state.recipe);
+  recipeView.update(model.state.recipe);
+};
+
 const init = () => {
   recipeView.addHandlerRender(getRecipe);
+  recipeView.addHandlerUpdateServings(controlServings);
+  recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
 };
