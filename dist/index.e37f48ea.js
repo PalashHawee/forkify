@@ -622,8 +622,8 @@ const controlServings = function(newServings) {
     (0, _recipeViewDefault.default).update(_model.state.recipe);
 };
 const controlAddBookmark = function() {
-    _model.addBookmark(_model.state.recipe);
-    console.log(_model.state.recipe);
+    if (!_model.state.recipe.bookmarked) _model.addBookmark(_model.state.recipe);
+    else _model.deleteBookmark(_model.state.recipe.id);
     (0, _recipeViewDefault.default).update(_model.state.recipe);
 };
 const init = ()=>{
@@ -2063,6 +2063,7 @@ parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults);
 parcelHelpers.export(exports, "getSearchResultsPage", ()=>getSearchResultsPage);
 parcelHelpers.export(exports, "updateServings", ()=>updateServings);
 parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
+parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _config = require("./config");
 var _helpers = require("./helpers");
@@ -2091,6 +2092,8 @@ const loadRecipe = async function(id) {
             cookingTime: recipe.cooking_time,
             ingredients: recipe.ingredients
         };
+        if (state.bookmarks.some((bookmark)=>bookmark.id === id)) state.recipe.bookmarked = true;
+        else state.recipe.bookmarked = false;
         console.log(state.recipe);
     } catch (err) {
         console.error(`${err}🤔`);
@@ -2131,6 +2134,12 @@ const addBookmark = function(recipe) {
     state.bookmarks.push(recipe);
     //Mark Current recipe as bookmark
     if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+};
+const deleteBookmark = (id)=>{
+    const index = state.bookmarks.findIndex((el)=>el.id === id);
+    state.bookmarks.splice(index, 1);
+    //Mark Current recipe as not bookmark
+    if (id === state.recipe.id) state.recipe.bookmarked = false;
 };
 
 },{"regenerator-runtime":"dXNgZ","./config":"k5Hzs","./helpers":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dXNgZ":[function(require,module,exports) {
